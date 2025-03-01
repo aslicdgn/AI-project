@@ -13,4 +13,4 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # If you're running the try.py script, define the command to run it
-CMD ["python", "try.py"]
+CMD ["python", "basic_try.py"]
