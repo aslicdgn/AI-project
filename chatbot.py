@@ -2,7 +2,6 @@ import sqlite3
 import os
 import random
 
-# Define database path inside the "db" directory
 DB_DIR = "db"
 DB_PATH = os.path.join(DB_DIR, "chatbot.db")
 
@@ -13,39 +12,58 @@ def create_database():
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
+    # Create greetings table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS greetings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_input TEXT UNIQUE,
-            bot_response TEXT
+            user_input TEXT UNIQUE
         )
     """)
+
+    # Create responses table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS responses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            greeting_id INTEGER,
+            bot_response TEXT,
+            FOREIGN KEY (greeting_id) REFERENCES greetings (id)
+        )
+    """)
+
     conn.commit()
     conn.close()
 
 def insert_greetings():
     """Inserts greeting data into the database if not already present."""
-    greetings_data = [
-        ("merhaba", ["Merhaba!", "Selam!", "Hoş geldin!"]),
-        ("selam", ["Selam!", "Merhaba!", "Hey!"]),
-        ("hey", ["Hey!", "Selam!", "Naber?"]),
-        ("nasılsın", ["İyiyim, sen nasılsın?", "Fena değil, ya sen?", "Harikayım!"]),
-        ("günaydın", ["Günaydın!", "Hayırlı sabahlar!", "Günaydın, güzel bir gün olsun!"]),
-        ("iyi akşamlar", ["İyi akşamlar!", "Akşamın güzel geçsin!", "İyi akşamlar, nasılsın?"]),
-        ("iyi geceler", ["İyi geceler!", "Tatlı rüyalar!", "İyi uykular!"]),
-        ("ne haber", ["İyilik, senden?", "Hadi anlat bakalım, ne var ne yok?", "Keyfim yerinde, sen nasılsın?"]),
-        ("selamün aleyküm", ["Aleyküm selam!", "Ve aleyküm selam!", "Selam dostum!"]),
-        ("alo", ["Alo! Buyur?", "Buradayım, seni dinliyorum!", "Evet, alo?"]),
-        ("hoş geldin", ["Hoş bulduk!", "Teşekkürler, hoş buldum!", "Hoş bulduk, nasılsın?"]),
-        ("görüşürüz", ["Görüşmek üzere!", "Sonra görüşürüz!", "Kendine iyi bak!"])
-    ]
+    greetings_data = {
+        "merhaba": ["Merhaba!", "Selam!", "Hoş geldin!"],
+        "selam": ["Selam!", "Merhaba!", "Hey!"],
+        "hey": ["Hey!", "Selam!", "Naber?"],
+        "nasılsın": ["İyiyim, sen nasılsın?", "Fena değil, ya sen?", "Harikayım!"],
+        "günaydın": ["Günaydın!", "Hayırlı sabahlar!", "Günaydın, güzel bir gün olsun!"],
+        "iyi akşamlar": ["İyi akşamlar!", "Akşamın güzel geçsin!", "İyi akşamlar, nasılsın?"],
+        "iyi geceler": ["İyi geceler!", "Tatlı rüyalar!", "İyi uykular!"],
+        "ne haber": ["İyilik, senden?", "Hadi anlat bakalım, ne var ne yok?", "Keyfim yerinde, sen nasılsın?"],
+        "selamün aleyküm": ["Aleyküm selam!", "Ve aleyküm selam!", "Selam dostum!"],
+        "alo": ["Alo! Buyur?", "Buradayım, seni dinliyorum!", "Evet, alo?"],
+        "hoş geldin": ["Hoş bulduk!", "Teşekkürler, hoş buldum!", "Hoş bulduk, nasılsın?"],
+        "görüşürüz": ["Görüşmek üzere!", "Sonra görüşürüz!", "Kendine iyi bak!"]
+    }
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
+    # Insert greetings
+    for user_input, responses in greetings_data.items():
+        cursor.execute("INSERT OR IGNORE INTO greetings (user_input) VALUES (?)", (user_input,))
     
-    for user_input, responses in greetings_data:
+    # Insert responses
+    for user_input, responses in greetings_data.items():
+        cursor.execute("SELECT id FROM greetings WHERE user_input = ?", (user_input,))
+        greeting_id = cursor.fetchone()[0]
         for response in responses:
-            cursor.execute("INSERT OR IGNORE INTO greetings (user_input, bot_response) VALUES (?, ?)", (user_input, response))
+            cursor.execute("INSERT OR IGNORE INTO responses (greeting_id, bot_response) VALUES (?, ?)", (greeting_id, response))
     
     conn.commit()
     conn.close()
@@ -57,13 +75,20 @@ def get_response(user_input):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    cursor.execute("SELECT bot_response FROM greetings WHERE user_input = ?", (user_input,))
-    responses = cursor.fetchall()
+    # Find greeting ID
+    cursor.execute("SELECT id FROM greetings WHERE user_input = ?", (user_input,))
+    greeting = cursor.fetchone()
+    
+    if greeting:
+        greeting_id = greeting[0]
+        cursor.execute("SELECT bot_response FROM responses WHERE greeting_id = ?", (greeting_id,))
+        responses = cursor.fetchall()
+        conn.close()
+        
+        if responses:
+            return random.choice([response[0] for response in responses])
     
     conn.close()
-    
-    if responses:
-        return random.choice([response[0] for response in responses])
     
     # Alternative responses for unknown inputs
     unknown_responses = [
