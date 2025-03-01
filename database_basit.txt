@@ -1,0 +1,49 @@
+import sqlite3
+
+def create_database():
+    conn = sqlite3.connect("chatbot.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS greetings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_input TEXT UNIQUE,
+            bot_response TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+def insert_greetings():
+    greetings_data = [
+        ("merhaba", "Merhaba!"), ("selam", "Selam!"), ("hey", "Hey!"), ("nasılsın", "İyiyim, sen nasılsın?"),
+        ("günaydın", "Günaydın!"), ("iyi akşamlar", "İyi akşamlar!"), ("iyi geceler", "İyi geceler! Tatlı rüyalar!"),
+        ("ne haber", "İyilik, senden?"), ("selamün aleyküm", "Aleyküm selam!"), ("alo", "Alo! Buyur?"),
+        ("hoş geldin", "Hoş bulduk!"), ("görüşürüz", "Görüşmek üzere!")
+    ]
+    
+    conn = sqlite3.connect("chatbot.db")
+    cursor = conn.cursor()
+    cursor.executemany("INSERT OR IGNORE INTO greetings (user_input, bot_response) VALUES (?, ?)", greetings_data)
+    conn.commit()
+    conn.close()
+
+def get_response(user_input):
+    conn = sqlite3.connect("chatbot.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT bot_response FROM greetings WHERE user_input = ?", (user_input,))
+    response = cursor.fetchone()
+    conn.close()
+    return response[0] if response else "Bot: Sadece selamlaşma biliyorum! 'çıkış' yazarak çıkabilirsin."
+
+def chatbot():
+    create_database()
+    insert_greetings()
+    
+    while True:
+        user_input = input("Sen: ").lower()
+        if user_input == "çıkış":
+            print("Bot: Görüşürüz!")
+            break
+        print("Bot:", get_response(user_input))
+
+chatbot()
