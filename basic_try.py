@@ -1,10 +1,10 @@
 def chatbot():
-    greetings = ["merhaba", "selam", "hey", "nasılsın", "günaydın", "iyi akşamlar", "iyi geceler", "ne haber", "selamün aleyküm", "alo", "hoş geldin", "görüşürüz"]
+    greetings = ["merhaba", "selam", "hey", "nasılsın", "günaydın", "iyi akşamlar", "iyi geceler", "ne haber", "selamün aleyküm", "alo", "hoş geldin", "görüşürüz", "bende iyiyim"]
     responses = {
         "merhaba": "Merhaba!", "selam": "Selam!", "hey": "Hey!", "nasılsın": "İyiyim, sen nasılsın?",
         "günaydın": "Günaydın!", "iyi akşamlar": "İyi akşamlar!", "iyi geceler": "İyi geceler! Tatlı rüyalar!",
         "ne haber": "İyilik, senden?", "selamün aleyküm": "Aleyküm selam!", "alo": "Alo! Buyur?",
-        "hoş geldin": "Hoş bulduk!", "görüşürüz": "Görüşmek üzere!"
+        "hoş geldin": "Hoş bulduk!", "görüşürüz": "Görüşmek üzere!", "bende iyiyim": "Allah iyilik versin"
     }
     
     while True:
