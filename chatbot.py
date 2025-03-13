@@ -68,6 +68,28 @@ def insert_greetings():
     conn.commit()
     conn.close()
 
+def learn_new_response(user_input):
+    """Kullanıcının verdiği yeni bir yanıtı öğrenir."""
+    print("Bot: Bu kelimeyi bilmiyorum. Bana nasıl cevap vermeliyim?")
+    new_response = input("Sen: ").strip()
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Yeni kelimeyi ekle
+    cursor.execute("INSERT OR IGNORE INTO greetings (user_input) VALUES (?)", (user_input,))
+    
+    # Kelimenin ID'sini al
+    cursor.execute("SELECT id FROM greetings WHERE user_input = ?", (user_input,))
+    greeting_id = cursor.fetchone()[0]
+
+    # Yanıtı ekle
+    cursor.execute("INSERT INTO responses (greeting_id, bot_response) VALUES (?, ?)", (greeting_id, new_response))
+
+    conn.commit()
+    conn.close()
+    print(f"Bot: Teşekkürler! Bundan sonra '{user_input}' dediğinde '{new_response}' diyeceğim.")
+
 def get_response(user_input):
     """Retrieves a response from the database based on user input."""
     user_input = user_input.strip().lower()
@@ -90,15 +112,18 @@ def get_response(user_input):
     
     conn.close()
     
+    learn_new_response(user_input)
+    return "Tamam, öğrendim!"
     # Alternative responses for unknown inputs
-    unknown_responses = [
-        "Bunu bilmiyorum ama öğrenebilirim!",
-        "Şu an sadece selamlaşmaları biliyorum ama yakında daha fazlasını öğreneceğim!",
-        "Bunu anlayamadım ama yakında daha akıllı olacağım!",
-        "Şimdilik sadece selamlaşmalar konusunda iyiyim. Başka bir şey deneyelim mi?"
-    ]
+    # unknown_responses = [
+    #     "Bunu bilmiyorum ama öğrenebilirim!",
+    #     "Şu an sadece selamlaşmaları biliyorum ama yakında daha fazlasını öğreneceğim!",
+    #     "Bunu anlayamadım ama yakında daha akıllı olacağım!",
+    #     "Şimdilik sadece selamlaşmalar konusunda iyiyim. Başka bir şey deneyelim mi?"
+    # ]
     
-    return random.choice(unknown_responses)
+    # return random.choice(unknown_responses)
+
 
 def chatbot():
     """Runs the chatbot loop."""
