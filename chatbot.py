@@ -65,14 +65,18 @@ def insert_greetings():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
+    # Check if greetings table is empty
+    cursor.execute("SELECT COUNT(*) FROM greetings")
+    count = cursor.fetchone()[0]
+    if count > 0:
+        conn.close()
+        return  # Table already populated
+
     # Insert greetings into the greetings table
     for user_input, responses in greetings_data.items():
         cursor.execute("INSERT OR IGNORE INTO greetings (user_input) VALUES (?)", (user_input,))
     
-    # For each greeting, insert its responses into the responses table.
-    # The responses table uses a polymorphic association:
-    #   - source_table: "greetings"
-    #   - source_id: the id of the greeting in the greetings table.
+    # For each greeting, insert its responses into the responses table using polymorphic association.
     for user_input, responses in greetings_data.items():
         cursor.execute("SELECT id FROM greetings WHERE user_input = ?", (user_input,))
         source_id = cursor.fetchone()[0]
