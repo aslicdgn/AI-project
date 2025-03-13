@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'chatbot_app/styles.css' %}">
+</head>
+<body>
+    <div class="chat-container">
+        <div id="messages" class="messages">
+            <!-- Mesajlar burada görünecek -->
+        </div>
+        <textarea id="user-message" placeholder="Mesajınızı buraya yazın..." rows="3"></textarea>
+        <button id="send-message">Gönder</button>
+    </div>
+    <script>
+        const sendMessageButton = document.getElementById('send-message');
+        const userMessageInput = document.getElementById('user-message');
+        const messagesContainer = document.getElementById('messages');
+
+        sendMessageButton.addEventListener('click', () => {
+            const userMessage = userMessageInput.value;
+            if (userMessage.trim()) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.innerText = userMessage;
+                messagesContainer.appendChild(messageElement);
+                userMessageInput.value = ''; // Mesaj kutusunu temizle
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.chat-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.messages {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding-right: 10px;
+}
+
+.message {
+    background-color: #00796b;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    max-width: 80%;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #00796b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #004d40;
+}
+
+</style>
