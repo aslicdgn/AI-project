@@ -2,9 +2,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from chatbots.chatbot import get_response, learn_new_response
+from django.shortcuts import render
 
 @csrf_exempt  # Eğer POST isteği gönderiliyorsa CSRF korumasını geçersiz kılar
 def chatbot_response(request):
+
+    if request.method == "GET":
+        return render(request, "chatbot_app/chatbot.html")
     """
     Chatbot API endpoint.
     Kullanıcının mesajını alır, veritabanından uygun yanıtı döndürür ya da yeni bir yanıt öğrenmesini sağlar.
