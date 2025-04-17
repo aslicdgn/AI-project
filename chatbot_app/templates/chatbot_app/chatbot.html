@@ -19,18 +19,60 @@
         const sendMessageButton = document.getElementById('send-message');
         const userMessageInput = document.getElementById('user-message');
         const messagesContainer = document.getElementById('messages');
-
+    
         sendMessageButton.addEventListener('click', () => {
-            const userMessage = userMessageInput.value;
-            if (userMessage.trim()) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message');
-                messageElement.innerText = userMessage;
-                messagesContainer.appendChild(messageElement);
-                userMessageInput.value = ''; // Mesaj kutusunu temizle
+            const userMessage = userMessageInput.value.trim();
+    
+            if (userMessage) {
+                // Kullanıcı mesajını ekrana yaz
+                const userElement = document.createElement('div');
+                userElement.classList.add('message', 'user');
+                userElement.innerText = "Sen: " + userMessage;
+                messagesContainer.appendChild(userElement);
+    
+                // Mesajı sunucuya gönder
+                fetch("/chatbot/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const botElement = document.createElement('div');
+                    botElement.classList.add('message', 'bot');
+                    if (data.response) {
+                        botElement.innerText = "Bot: " + data.response;
+                    } else if (data.error) {
+                        botElement.innerText = "Hata: " + data.error;
+                        botElement.style.backgroundColor = "#c62828";
+                    } else {
+                        botElement.innerText = "Beklemeyen bir yanıt alındı."
+                    }
+                    messagesContainer.appendChild(botElement);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                })
+                .catch(error => {
+                    const errorElement = document.createElement('div');
+                    errorElement.classList.add('message', 'error');
+                    errorElement.innerText = "Hata oluştu: " + error;
+                    messagesContainer.appendChild(errorElement);
+                });
+    
+                userMessageInput.value = ''; // kutuyu temizle
+
+                userMessageInput.addEventListener("keypress", function (e) {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault(); // satır başı yerine gönder
+                        sendMessageButton.click();
+                    }
+                });
+
             }
         });
     </script>
+    
 </body>
 </html>
 
