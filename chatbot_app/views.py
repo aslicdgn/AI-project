@@ -5,6 +5,12 @@ import subprocess
 from chatbots.chatbot import get_response, learn_new_response
 from django.shortcuts import render
 
+def index(request):
+    """
+    Ana sayfa görünümünü döndürür.
+    """
+    return render(request, "chatbot_app/home.html")
+
 @csrf_exempt  # Eğer POST isteği gönderiliyorsa CSRF korumasını geçersiz kılar
 def chatbot_response(request):
 
