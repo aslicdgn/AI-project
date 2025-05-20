@@ -19,9 +19,11 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from chatbot_app.views import chatbot_response
+from chatbot_app.views import index
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", index),
     path("chat/", chatbot_response),
     path("chatbot/", include("chatbot_app.urls"))
 ]
